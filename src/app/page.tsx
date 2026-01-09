@@ -13,8 +13,7 @@ import {
   CssBaseline,
 } from "@mui/material";
 import { Brightness4, Brightness7 } from "@mui/icons-material";
-import ProductDetails from "./ProductDetails";
-import ProductList from "./ProductList";
+import ProductList from "@/components/ProductList";
 
 // TYPES
 interface Product {
@@ -30,8 +29,6 @@ interface Product {
   };
 }
 
-type ViewMode = "list" | "details";
-
 interface AppState {
   products: Product[];
   loading: boolean;
@@ -40,8 +37,6 @@ interface AppState {
   selectedCategory: string;
   favorites: number[];
   showFavoritesOnly: boolean;
-  selectedProduct: Product | null;
-  viewMode: ViewMode;
   darkMode: boolean;
 }
 
@@ -54,12 +49,9 @@ const Page: React.FC = () => {
     selectedCategory: "All",
     favorites: [],
     showFavoritesOnly: false,
-    selectedProduct: null,
-    viewMode: "list",
     darkMode: false,
   });
 
-  // Create MUI theme
   const theme = useMemo(
     () =>
       createTheme({
@@ -100,6 +92,9 @@ const Page: React.FC = () => {
 
     fetchProducts();
   }, []);
+
+  console.log(state, "stateteeee");
+  console.log(state.products, "productssssss");
 
   // Get unique categories
   const categories = useMemo(() => {
@@ -148,18 +143,6 @@ const Page: React.FC = () => {
     setState((prev) => ({ ...prev, darkMode: !prev.darkMode }));
   };
 
-  const viewProduct = (product: Product) => {
-    setState((prev) => ({
-      ...prev,
-      selectedProduct: product,
-      viewMode: "details",
-    }));
-  };
-
-  const goBack = () => {
-    setState((prev) => ({ ...prev, viewMode: "list", selectedProduct: null }));
-  };
-
   const handleSearchChange = (value: string) => {
     setState((prev) => ({ ...prev, searchTerm: value }));
   };
@@ -175,9 +158,6 @@ const Page: React.FC = () => {
     }));
   };
 
-
-  console.log(state?.products , "productssss");
-  
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -199,32 +179,20 @@ const Page: React.FC = () => {
         </AppBar>
 
         <Container maxWidth="xl" sx={{ py: 4 }}>
-          {state.viewMode === "list" ? (
-            <ProductList
-              products={filteredProducts}
-              loading={state.loading}
-              error={state.error}
-              searchTerm={state.searchTerm}
-              selectedCategory={state.selectedCategory}
-              categories={categories}
-              showFavoritesOnly={state.showFavoritesOnly}
-              favorites={state.favorites}
-              onSearchChange={handleSearchChange}
-              onCategoryChange={handleCategoryChange}
-              onToggleFavorites={handleToggleFavorites}
-              onToggleFavorite={toggleFavorite}
-              onViewProduct={viewProduct}
-            />
-          ) : (
-            state.selectedProduct && (
-              <ProductDetails
-                product={state.selectedProduct}
-                isFavorite={state.favorites.includes(state.selectedProduct.id)}
-                onToggleFavorite={toggleFavorite}
-                onBack={goBack}
-              />
-            )
-          )}
+          <ProductList
+            products={filteredProducts}
+            loading={state.loading}
+            error={state.error}
+            searchTerm={state.searchTerm}
+            selectedCategory={state.selectedCategory}
+            categories={categories}
+            showFavoritesOnly={state.showFavoritesOnly}
+            favorites={state.favorites}
+            onSearchChange={handleSearchChange}
+            onCategoryChange={handleCategoryChange}
+            onToggleFavorites={handleToggleFavorites}
+            onToggleFavorite={toggleFavorite}
+          />
         </Container>
       </Box>
     </ThemeProvider>

@@ -1,4 +1,5 @@
 import React from "react";
+import { useRouter } from "next/navigation";
 import {
   Typography,
   Card,
@@ -31,15 +32,19 @@ interface ProductCardProps {
   product: Product;
   isFavorite: boolean;
   onToggleFavorite: (id: number) => void;
-  onView: (product: Product) => void;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
   product,
   isFavorite,
   onToggleFavorite,
-  onView,
 }) => {
+  const router = useRouter();
+
+  const handleViewDetails = () => {
+    router.push(`/products/${product.id}`);
+  };
+
   return (
     <Card
       sx={{
@@ -159,7 +164,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         <Button
           variant="contained"
           size="small"
-          onClick={() => onView(product)}
+          onClick={handleViewDetails}
         >
           View Details
         </Button>

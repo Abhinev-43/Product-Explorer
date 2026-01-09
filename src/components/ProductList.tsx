@@ -22,7 +22,7 @@ import {
 } from "@mui/icons-material";
 import ProductCard from "./ProductCard";
 
-// TYPES
+// Types 
 interface Product {
   id: number;
   title: string;
@@ -49,7 +49,6 @@ interface ProductListProps {
   onCategoryChange: (value: string) => void;
   onToggleFavorites: () => void;
   onToggleFavorite: (id: number) => void;
-  onViewProduct: (product: Product) => void;
 }
 
 const ProductList: React.FC<ProductListProps> = ({
@@ -65,11 +64,10 @@ const ProductList: React.FC<ProductListProps> = ({
   onCategoryChange,
   onToggleFavorites,
   onToggleFavorite,
-  onViewProduct,
 }) => {
   return (
     <>
-      {/* Filters */}
+      {/* Filterss */}
       <Box sx={{ mb: 4 }}>
         {/* Search */}
         <TextField
@@ -88,7 +86,7 @@ const ProductList: React.FC<ProductListProps> = ({
           sx={{ mb: 2 }}
         />
 
-        {/* Category Filter and Favorites Toggle */}
+        {/* Category Filter and Favorites */}
         <Box
           sx={{
             display: "grid",
@@ -143,7 +141,7 @@ const ProductList: React.FC<ProductListProps> = ({
         </Alert>
       )}
 
-      {/* Product Grid */}
+      {/* Product Gridx */}
       {!loading && !error && (
         <>
           {products.length === 0 ? (
@@ -176,7 +174,6 @@ const ProductList: React.FC<ProductListProps> = ({
                     product={product}
                     isFavorite={favorites.includes(product.id)}
                     onToggleFavorite={onToggleFavorite}
-                    onView={onViewProduct}
                   />
                 ))}
               </Box>
