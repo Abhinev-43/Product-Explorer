@@ -49,7 +49,10 @@ const Page: React.FC = () => {
     selectedCategory: "All",
     favorites: [],
     showFavoritesOnly: false,
-    darkMode: false,
+    darkMode:
+      typeof window !== "undefined"
+        ? JSON.parse(localStorage.getItem("darkMode") || "false")
+        : false,
   });
 
   const theme = useMemo(
@@ -68,41 +71,54 @@ const Page: React.FC = () => {
     [state.darkMode]
   );
 
-  // Fetch products
   useEffect(() => {
+    const controller = new AbortController();
+
     const fetchProducts = async () => {
       try {
         setState((prev) => ({ ...prev, loading: true, error: null }));
-        const response = await fetch("https://fakestoreapi.com/products");
+
+        const response = await fetch("https://fakestoreapi.com/products", {
+          signal: controller.signal,
+        });
 
         if (!response.ok) {
           throw new Error("Failed to fetch products");
         }
 
         const data: Product[] = await response.json();
-        setState((prev) => ({ ...prev, products: data, loading: false }));
+
+        setState((prev) => ({
+          ...prev,
+          products: data,
+          loading: false,
+        }));
       } catch (err) {
+        if (err instanceof DOMException) return;
+
         setState((prev) => ({
           ...prev,
           loading: false,
-          error: err instanceof Error ? err.message : "An error occurred",
+          error:
+            err instanceof Error
+              ? err.message
+              : "Something went wrong while fetching products",
         }));
       }
     };
 
     fetchProducts();
+    return () => controller.abort();
   }, []);
 
-  console.log(state, "stateteeee");
-  console.log(state.products, "productssssss");
+  useEffect(() => {
+    localStorage.setItem("darkMode", JSON.stringify(state.darkMode));
+  }, [state.darkMode]);
 
-  // Get unique categories
   const categories = useMemo(() => {
-    const cats = ["All", ...new Set(state.products.map((p) => p.category))];
-    return cats;
+    return ["All", ...new Set(state.products.map((p) => p.category))];
   }, [state.products]);
 
-  // Filter products
   const filteredProducts = useMemo(() => {
     let filtered = state.products;
 
@@ -129,14 +145,13 @@ const Page: React.FC = () => {
     state.favorites,
   ]);
 
-  // Handlers
   const toggleFavorite = (productId: number) => {
-    setState((prev) => {
-      const newFavorites = prev.favorites.includes(productId)
+    setState((prev) => ({
+      ...prev,
+      favorites: prev.favorites.includes(productId)
         ? prev.favorites.filter((id) => id !== productId)
-        : [...prev.favorites, productId];
-      return { ...prev, favorites: newFavorites };
-    });
+        : [...prev.favorites, productId],
+    }));
   };
 
   const toggleDarkMode = () => {
@@ -161,8 +176,9 @@ const Page: React.FC = () => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
+
       <Box sx={{ flexGrow: 1, minHeight: "100vh" }}>
-        {/* Header */}
+        {/* HEADER */}
         <AppBar position="sticky" elevation={1}>
           <Toolbar>
             <Typography
@@ -172,12 +188,14 @@ const Page: React.FC = () => {
             >
               Product Explorer
             </Typography>
+
             <IconButton onClick={toggleDarkMode} color="inherit">
               {state.darkMode ? <Brightness7 /> : <Brightness4 />}
             </IconButton>
           </Toolbar>
         </AppBar>
 
+        {/* CONTENT */}
         <Container maxWidth="xl" sx={{ py: 4 }}>
           <ProductList
             products={filteredProducts}
